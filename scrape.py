@@ -13,6 +13,8 @@ def GET_SOUP(my_url):
 	return soup
 
 
+allMoviesURL = "https://www.imdb.com/list/ls057823854/"
+
 url = "https://www.imdb.com/chart/top?ref_=nv_mv_250"
 soup=GET_SOUP(url)
 table = soup.find('tbody', attrs={'class': 'lister-list'})
@@ -27,12 +29,12 @@ for row in table.findAll('tr'):
     title = row.find('td', attrs={'class': 'titleColumn'}).find('a').text.replace('\n', '')
     listOfCells.append(title)
     listOfCells.append(rating)
-    
+
     url_2="https://www.imdb.com"+row.find('td', attrs={'class': 'titleColumn'}).find('a').get("href")
     soup_2=GET_SOUP(url_2)
     # print(url_2)
     url_3="https://www.imdb.com" + soup_2.find('div', attrs={'class': 'user-comments'}).findAll('a')[4].get("href")
-    
+
     # print(url_3)
 
     count_2=0
@@ -53,7 +55,7 @@ for row in table.findAll('tr'):
     print("Complete")
     #time.sleep(10)
 
-    soup_3=BeautifulSoup(driver.page_source)    
+    soup_3=BeautifulSoup(driver.page_source)
 
 
     print("Start:", str(count))
