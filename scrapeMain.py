@@ -5,6 +5,61 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from multiprocessing import Pool
 import time
+from selenium.webdriver.chrome.options import Options
+import zipfile
+
+manifest_json = """
+{
+    "version": "1.0.0",
+    "manifest_version": 2,
+    "name": "Chrome Proxy",
+    "permissions": [
+        "proxy",
+        "tabs",
+        "unlimitedStorage",
+        "storage",
+        "<all_urls>",
+        "webRequest",
+        "webRequestBlocking"
+    ],
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "minimum_chrome_version":"22.0.0"
+}
+"""
+
+background_js = """
+var config = {
+        mode: "fixed_servers",
+        rules: {
+          singleProxy: {
+            scheme: "http",
+            host: "202.141.80.24",
+            port: parseInt(3128)
+          },
+          bypassList: ["foobar.com"]
+        }
+      };
+
+chrome.proxy.settings.set({value: config, scope: "regular"}, function() {});
+
+function callbackFn(details) {
+    return {
+        authCredentials: {
+            username: "gulat170123030",
+            password: "FTS6C3kq"
+        }
+    };
+}
+
+chrome.webRequest.onAuthRequired.addListener(
+            callbackFn,
+            {urls: ["<all_urls>"]},
+            ['blocking']
+);
+"""
+
 
 def GET_SOUP(my_url):
 	url = my_url
@@ -26,7 +81,12 @@ def scrapeData(url):
 		soup_2=GET_SOUP(url_2)
 		url_3="https://www.imdb.com" + soup_2.find('div', attrs={'class': 'user-comments'}).findAll('a')[4].get("href")
 
-		driver = webdriver.Chrome('/usr/bin/chromedriver')
+		driver_options = Options()
+		driver_options.add_argument("--start-maximized")
+		driver_options.add_extension('proxy_auth_plugin.zip')
+
+		driver = webdriver.Chrome('/usr/bin/chromedriver', chrome_options=driver_options)
+
 		driver.get(url_3)
 		count = 0
 		while True:
@@ -66,6 +126,12 @@ def scrapeData(url):
 		writer = csv.writer(outfile, delimiter='\t', lineterminator='\n')
 		writer.writerow(['Comment Head','Comment Body', 'Comment Rating'])
 		writer.writerows(listOfComments)
+
+pluginfile = 'proxy_auth_plugin.zip'
+
+with zipfile.ZipFile(pluginfile, 'w') as zp:
+    zp.writestr("manifest.json", manifest_json)
+    zp.writestr("background.js", background_js)
 
 mainUrl = "https://www.imdb.com/list/ls057823854/"
 url = "https://www.imdb.com/list/ls057823854/?sort=list_order,asc&st_dt=&mode=detail&page="
