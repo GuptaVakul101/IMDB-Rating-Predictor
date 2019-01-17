@@ -12,7 +12,6 @@ def GET_SOUP(my_url):
 	soup = BeautifulSoup(html, features='lxml')
 	return soup
 
-
 allMoviesURL = "https://www.imdb.com/list/ls057823854/"
 
 url = "https://www.imdb.com/chart/top?ref_=nv_mv_250"
@@ -37,25 +36,25 @@ for row in table.findAll('tr'):
 
     # print(url_3)
 
-    count_2=0
     driver = webdriver.Chrome('/usr/bin/chromedriver')
     driver.get(url_3)
+    count_3 = 0
     while True:
+    	print(count_3)
     	try:
-    		count_2+=1
     		loadMoreButton = driver.find_element_by_id("load-more-trigger")
-    		time.sleep(1)
+    		time.sleep(0.1)
     		loadMoreButton.click()
-    		time.sleep(1)
-    		if count_2==10:
-    			break
+    		count_3 = 0
+    		time.sleep(0.1)
     	except Exception as e:
-    		print(e)
-    		break
+    		count_3 += 1
+    		if count_3 == 20:
+    			break
     print("Complete")
     #time.sleep(10)
 
-    soup_3=BeautifulSoup(driver.page_source)
+    soup_3=BeautifulSoup(driver.page_source, features="lxml")
 
 
     print("Start:", str(count))
