@@ -61,7 +61,7 @@ chrome.webRequest.onAuthRequired.addListener(
 );
 """
 
-
+#JUST RETURNS THE SOUPIFIED CONTENT OF THAT URL BY USING LXML PARSER
 def GET_SOUP(my_url):
 	url = my_url
 	response = requests.get(url)
@@ -69,6 +69,7 @@ def GET_SOUP(my_url):
 	soup = BeautifulSoup(html, features='lxml')
 	return soup
 
+#SCRAPE THE CONTENT OF THAT URL BY REPEATEDLY FINDING THE LOAD MORE BUTTON
 def scrapeData(url):
     listOfComments=[]
 
@@ -117,6 +118,8 @@ def scrapeData(url):
     driver.quit()
     return [url, listOfComments]
 
+#GET THE FINAL URL USED FOR SCRAPPING THE DATA FROM THE MAIN PAGE BY GETTING INTO EACH MOVIE
+#THERE ARE SUCH HUNDRED MAIN PAGES CONTAINING HUNDRED MOVIES EACH
 def getURLs(url):
     soup=GET_SOUP(url)
     table = soup.find('div', attrs={'class': 'lister-list'})
@@ -171,7 +174,7 @@ listOfUrls=[]
 listOfUrls.append(mainUrl)
 
 numPages = 100
-
+#GETTING THOSE HUNDRED MAIN PAGES
 for i in range(2, numPages+1):
 	listOfUrls.append(url+str(i))
 
@@ -179,6 +182,8 @@ numCores = 4
 
 parProcess = Pool(numCores)
 result = parProcess.map(getURLs, listOfUrls)    # List of list of dicionaries
+# LIST OF LIST OF DICTIONARY WHERE [DICTIONARY CONTAINS (FINAL URL --> MOVIE NAME & RATING OF THE MOVIE ITSELF)], [ONE LIST IS THOSE 100 MOVIE ON A SINGLE PAGE]
+#[OUTER LIST IS BASICALLY FOR THOSE 100 MAIN PAGES]
 FinalList=[]
 finalDict = {}
 for i in result:
